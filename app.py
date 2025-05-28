@@ -99,7 +99,7 @@ def update(post_id):
             list_posts_new.append(dict_blog)
             save_json(list_posts_new)
             return redirect(url_for('index'))
-        return f"Invalid Input. go back here: <a href={url_for('index')}>Homepage<a>", 404
+        return f"Invalid Input. Go back here: <a href={url_for('index')}>Homepage<a>", 404
     # Else, it's a GET request
     # So display the update.html page
     return render_template('update.html', post=post)
