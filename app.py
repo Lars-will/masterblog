@@ -5,41 +5,47 @@ app = Flask(__name__)
 
 
 def save_blog_post(dict_post):
+    """Adds a new blog post to the list"""
     blog_posts = load_json()
     blog_posts.append(dict_post)
     save_json(blog_posts)
 
 
 def save_json(blog_posts):
+    """saves the blogs the a JSON file"""
     with open('./data/db.json', 'w', encoding='utf-8') as fileobj:
         json.dump(blog_posts, fileobj)
 
 
 def load_json():
+    """loads blog posts from JSON file"""
     with open('./data/db.json', 'r', encoding='utf-8') as fileobj:
         blog_posts = json.loads(fileobj.read())
     return blog_posts
 
 
 def fetch_post_by_id(int_post_id):
+    """returns a blog with a specific id."""
     list_blog_posts = load_json()
-    #print({blog_post for blog_post in list_blog_posts if blog_post['id'] == int_post_id})
     return [blog_post for blog_post in list_blog_posts if blog_post['id'] == int_post_id][0]
 
 
 def remove_post_by_id(int_post_id):
+    """removes blog from list with specific id"""
     list_blog_posts = load_json()
     return [blog_post for blog_post in list_blog_posts if blog_post['id'] != int_post_id]
 
 
 @app.route('/')
 def index():
+    """renders index.html"""
     blog_posts = load_json()
     return render_template('index.html', posts=blog_posts)
 
 
 @app.route('/add', methods=['GET', 'POST'])
 def add():
+    """manages adding new blog post"""
     if request.method == 'POST':
         str_title = request.form['title']
         str_author = request.form['author']
@@ -62,6 +68,7 @@ def add():
 
 @app.route('/delete/<int:post_id>')
 def delete(post_id):
+    """manages deleting a blog post."""
     post = fetch_post_by_id(post_id)
     if post is None:
         return "Post not found", 404
@@ -72,6 +79,7 @@ def delete(post_id):
 
 @app.route('/update/<int:post_id>', methods = ['GET','POST'])
 def update(post_id):
+    """manages updating of a blog post"""
     # Fetch the blog posts from the JSON file
     post = fetch_post_by_id(post_id)
     if post is None:
