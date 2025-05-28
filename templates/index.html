@@ -13,7 +13,17 @@
         <h2>{{post['title']}}</h2>
         <p><em>Written by {{post['author']}}</em></p>
         <p>{{post['content']}}</p>
+
+        <div class="actions">
+            <form method="GET" action="/delete/{{post['id']}}" style="display:inline;">
+                <input type="submit" value="Delete">
+            </form>
+        </div>
+
+
     </div>
+
+
     {% endfor %}
 </body>
 </html>
