@@ -18,12 +18,29 @@
             <form method="GET" action="/delete/{{post['id']}}" style="display:inline;">
                 <input type="submit" value="Delete">
             </form>
+
+            <form method="GET" action="/update/{{post['id']}}" style="display:inline;">
+                <input type="submit" value="Update">
+            </form>
+
+
         </div>
+
+
+
+
+
 
 
     </div>
 
 
     {% endfor %}
+    <div class="add">
+        <form method="GET" action="/add">
+            <input type="submit" value="Add Blog Post">
+        </form>
+    </div>
+
 </body>
 </html>

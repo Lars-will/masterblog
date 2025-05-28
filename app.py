@@ -6,20 +6,30 @@ app = Flask(__name__)
 
 def save_blog_post(dict_post):
     blog_posts = load_json()
-    print(blog_posts)
     blog_posts.append(dict_post)
     save_json(blog_posts)
 
 
 def save_json(blog_posts):
-    with open('./data/db.json', 'w') as fileobj:
+    with open('./data/db.json', 'w', encoding='utf-8') as fileobj:
         json.dump(blog_posts, fileobj)
 
 
 def load_json():
-    with open('./data/db.json', 'r') as fileobj:
+    with open('./data/db.json', 'r', encoding='utf-8') as fileobj:
         blog_posts = json.loads(fileobj.read())
     return blog_posts
+
+
+def fetch_post_by_id(int_post_id):
+    list_blog_posts = load_json()
+    #print({blog_post for blog_post in list_blog_posts if blog_post['id'] == int_post_id})
+    return [blog_post for blog_post in list_blog_posts if blog_post['id'] == int_post_id][0]
+
+
+def remove_post_by_id(int_post_id):
+    list_blog_posts = load_json()
+    return [blog_post for blog_post in list_blog_posts if blog_post['id'] != int_post_id]
 
 
 @app.route('/')
@@ -35,19 +45,56 @@ def add():
         str_author = request.form['author']
         str_content = request.form['content']
         if str_title != "" and str_author != "" and str_content != "":
-            int_id = max(post['id'] for post in load_json()) + 1
-            dict_blog = {'id': int_id, 'author': str_author, 'title': str_title, 'content': str_content}
+            list_blogs = load_json()
+            if len(list_blogs) > 0:
+                int_id = max(post['id'] for post in list_blogs) + 1
+            else:
+                int_id = 1
+            dict_blog = {'id': int_id,
+                         'author': str_author,
+                         'title': str_title,
+                         'content': str_content}
             save_blog_post(dict_blog)
             return redirect(url_for('index'))
+        return f"Invalid Input. go back here: <a href={url_for('index')}>Homepage<a>", 404
     return render_template('add.html')
 
 
 @app.route('/delete/<int:post_id>')
 def delete(post_id):
-    blog_posts = load_json()
-    blog_posts_new = [blog_post for blog_post in blog_posts if blog_post['id'] != post_id]
+    post = fetch_post_by_id(post_id)
+    if post is None:
+        return "Post not found", 404
+    blog_posts_new = remove_post_by_id(post_id)
     save_json(blog_posts_new)
     return redirect(url_for('index'))
+
+
+@app.route('/update/<int:post_id>', methods = ['GET','POST'])
+def update(post_id):
+    # Fetch the blog posts from the JSON file
+    post = fetch_post_by_id(post_id)
+    if post is None:
+        return "Post not found", 404
+
+    if request.method == 'POST':
+        str_title = request.form['title']
+        str_author = request.form['author']
+        str_content = request.form['content']
+        if str_title != "" and str_author != "" and str_content != "":
+            list_posts_new = remove_post_by_id(post_id)
+            dict_blog = {'id': post_id,
+                         'author': str_author,
+                         'title': str_title,
+                         'content': str_content}
+            print(dict_blog)
+            list_posts_new.append(dict_blog)
+            save_json(list_posts_new)
+            return redirect(url_for('index'))
+        return f"Invalid Input. go back here: <a href={url_for('index')}>Homepage<a>", 404
+    # Else, it's a GET request
+    # So display the update.html page
+    return render_template('update.html', post=post)
 
 
 if __name__ == '__main__':
